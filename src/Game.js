@@ -1,26 +1,6 @@
 import Board from "./Board"
 import React from "react";
-
-function calculateWinner(squares) {
-    const lines = [
-      [0, 1, 2],
-      [3, 4, 5],
-      [6, 7, 8],
-      [0, 3, 6],
-      [1, 4, 7],
-      [2, 5, 8],
-      [0, 4, 8],
-      [2, 4, 6],
-    ];
-    for (let i = 0; i < lines.length; i++) {
-      const [a, b, c] = lines[i];
-      if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-        return squares[a];
-      }
-    }
-    return null;
-}
-
+import { paste } from "@testing-library/user-event/dist/paste";
 
 class Game extends React.Component {
 
@@ -28,34 +8,90 @@ class Game extends React.Component {
         super(props);
         this.state = {
           history: [{
-            squares: Array(9).fill(null),
+            squares: Array(3).fill(null),
           }],
           stepNumber: 0,
           xIsNext: true,
-          grid_num : React.createRef(),
+          grid_num : 0,
+          allow: false,
         };
-        // this.handleChange = this.handleChange.bind(this);
+        this.handleInput = this.handleInput.bind(this);
+        this.handleButton = this.handleButton.bind(this);
     }
 
-    // handleChange(event){
-    //   this.setState({
-    //     grid_num: event.target.value
-    //   });
-    //   console.log(this.state.grid_num)
+    calculateWinner(squares) {
+      let length = this.state.grid_num
+      let needed = length-1
+      let X = 0
+      let O = 0
+  
+      //horizontal
+      for (let i = 0; i < length*length-length; i+=length) {
+          for (let j = i+1; j < i+length; j++){
+            if(squares[i] === squares[j]){
+              if(squares[i]=="X"){
+                X+=1
+              }
+              else if(squares[i]=="O"){
+                O+=1
+              }
+            }
+          }
+      }
+
+      //vertical
+      for (let i = 0; i < length; i++) {
+        
+      }
+  
+      //diagonal upper left - lower right
+      for (let i = 0; i < length; i++) {
+         
+      }
+  
+      //diagonal lower left - upper right
+       for (let i = 0; i < length; i++) {
       
-    // }
-    createTable(){
-        this.setState({
-          grid_num: grid_num.current.value
-        });
-        console.log(this.state.grid_num)
+      }
+    
+      if(X == needed){
+        return 'X' 
+      }
+      else if(O == needed){
+        return 'O'
+      }
+      return null;
+    }
+
+    handleInput(e){
+        this.setState({...this.state,
+          history: [{
+            squares: Array(e.target.value*e.target.value).fill(null)
+          }],
+          stepNumber: 0,
+          xIsNext: true,
+          grid_num: e.target.value,
+          allow: false
+        })
+        
+    }
+
+    handleButton(){
+        this.setState({...this.state,
+          history: [{
+            squares: Array(this.state.grid_num*this.state.grid_num).fill(null)
+          }],
+          stepNumber: 0,
+          xIsNext: true,
+          allow: true
+        })
     }
    
     handleClick(i) {
         const history = this.state.history.slice(0, this.state.stepNumber + 1);
         const current = history[history.length - 1];
         const squares = current.squares.slice();
-        if (calculateWinner(squares) || squares[i]) {
+        if (this.calculateWinner(squares) || squares[i]) {
           return;
         }
         squares[i] = this.state.xIsNext ? 'X' : 'O';
@@ -78,7 +114,7 @@ class Game extends React.Component {
     render() {
         const history = this.state.history;
         const current = history[this.state.stepNumber];
-        const winner = calculateWinner(current.squares);
+        const winner = this.calculateWinner(current.squares);
 
         const moves = history.map((step, move) => {
           const desc = move ?
@@ -100,20 +136,23 @@ class Game extends React.Component {
 
         return (
             <div className="game">
-              <input
-                type="number"
-                ref={grid_number}
-                // onChange={this.handleChange}
-                // id="grid num"
-                required
-                name="grid num"
-              />
-              <button onClick={this.createTable} className="btn btn-success">
-                Create
-              </button>
+              <div className="input">
+                <input
+                  type="number"
+                  name="inputField"
+                  onChange={this.handleInput}
+                  min={3}
+                  // ref={node => (this.inputNode = node)}
+                />
+                <button onClick={this.handleButton} className="btn btn-success">
+                  Create
+                </button>
+              </div>
               <div className="game-board">
                 <Board
                   squares={current.squares}
+                  grid_num={this.state.grid_num}
+                  allow={this.state.allow}
                   onClick={(i) => this.handleClick(i)}
                 />
               </div>
