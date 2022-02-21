@@ -32,9 +32,25 @@ class Game extends React.Component {
           }],
           stepNumber: 0,
           xIsNext: true,
+          grid_num : React.createRef(),
         };
+        // this.handleChange = this.handleChange.bind(this);
     }
 
+    // handleChange(event){
+    //   this.setState({
+    //     grid_num: event.target.value
+    //   });
+    //   console.log(this.state.grid_num)
+      
+    // }
+    createTable(){
+        this.setState({
+          grid_num: grid_num.current.value
+        });
+        console.log(this.state.grid_num)
+    }
+   
     handleClick(i) {
         const history = this.state.history.slice(0, this.state.stepNumber + 1);
         const current = history[history.length - 1];
@@ -84,6 +100,17 @@ class Game extends React.Component {
 
         return (
             <div className="game">
+              <input
+                type="number"
+                ref={grid_number}
+                // onChange={this.handleChange}
+                // id="grid num"
+                required
+                name="grid num"
+              />
+              <button onClick={this.createTable} className="btn btn-success">
+                Create
+              </button>
               <div className="game-board">
                 <Board
                   squares={current.squares}
