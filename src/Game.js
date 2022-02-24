@@ -17,50 +17,68 @@ class Game extends React.Component {
         };
         this.handleInput = this.handleInput.bind(this);
         this.handleButton = this.handleButton.bind(this);
+        this.calculateWinner = this.calculateWinner.bind(this);
     }
 
     calculateWinner(squares) {
-      let length = this.state.grid_num
-      let needed = length-1
-      let X = 0
-      let O = 0
-  
+      let n = parseInt(this.state.grid_num)
+      let patterns = []
+     
       //horizontal
-      for (let i = 0; i < length*length-length; i+=length) {
-          for (let j = i+1; j < i+length; j++){
-            if(squares[i] === squares[j]){
-              if(squares[i]=="X"){
-                X+=1
-              }
-              else if(squares[i]=="O"){
-                O+=1
-              }
-            }
-          }
+      for(let i=0; i<(n*n); i=i+n){
+        let temp = []
+        temp = squares.slice(i, i+n)
+        patterns.push(temp)
       }
 
       //vertical
-      for (let i = 0; i < length; i++) {
-        
+      for(let i=0; i<n; i++){
+        let temp = []
+        for(let j=0; j<n; j++){
+          temp.push(patterns[j][i])
+        }
+        patterns.push(temp)
       }
-  
-      //diagonal upper left - lower right
-      for (let i = 0; i < length; i++) {
-         
+
+      //diagonal
+      let temp = []
+      for(let i=0; i<n; i++){
+        temp.push(patterns[i][i])
       }
-  
-      //diagonal lower left - upper right
-       for (let i = 0; i < length; i++) {
-      
+      patterns.push(temp)
+
+      //anti-diagonal
+      temp = []
+      for(let i=0; i<n; i++){
+        temp.push(patterns[i][n-i-1])
       }
-    
-      if(X == needed){
-        return 'X' 
+      patterns.push(temp)
+
+      //debug
+      console.log(patterns.length)             //2*n+2
+      for(let i=0; i<patterns.length; i++){
+        console.log(patterns[i])
       }
-      else if(O == needed){
-        return 'O'
+
+      //check winner
+      for(let i=0; i<patterns.length; i++){
+        let emptyboard = patterns[i].every(val => val==null)
+        let winnerIsX = patterns[i].every(val => val=="X")
+        let winnerIsO = patterns[i].every(val => val=="O")
+        if(winnerIsX){
+          if(emptyboard){
+            return null
+          }
+          return("X")
+        }
+        else if(winnerIsO){
+          if(emptyboard){
+            return null
+          }
+          return("O")
+        }
       }
-      return null;
+      return null
     }
 
     handleInput(e){
@@ -141,6 +159,7 @@ class Game extends React.Component {
                   type="number"
                   name="inputField"
                   onChange={this.handleInput}
+                  value={this.state.grid_num}
                   min={3}
                   // ref={node => (this.inputNode = node)}
                 />
